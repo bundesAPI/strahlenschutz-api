@@ -46,13 +46,57 @@ components:
               type: string
               example: '010020002'
               description: Kennnummer der Station mit dem höchsten Tagesmittelwert
-    StationValues:
+    BasicTimeSeries:
       type: object
-      description: Messwerte und Spezifikation einer Messstation.
+      description: Grundlegende Zeitreihe (Zeitstempel und Strahlungsmesswerte).
       properties:
-        stamm:
-          $ref: '#/components/schemas/Station'
-        
+        t:
+          type: array
+          description: UTC-Zeitstempel der Messwerte
+          items:
+            type: string
+        mw:
+          type: array
+          description: Messwerte in µSv/h
+          items:
+            type: number
+    ExtendedTimeSeries:
+      type: object
+      description: Erweiterte Zeitreihe mit Prüfstatus und Niederschlagswahrscheinlichkeiten.
+      allOf:
+        - $ref: '#/components/schemas/BasicTimeSeries'
+      properties:
+        ps:
+          type: array
+          description: Prüfstatus der Messwerte. Ein Status ungleich 0 zeigt einen Messwert an, der auffällig ist und überprüft werden muss
+          items:
+            type: number
+        tr:
+          type: array
+          description: Zeitstempel zu den Niederschlagswahrscheinlichkeiten
+          items:
+            type: number
+        r:
+          type: array
+          description: Regenwahrscheinlichkeit
+          items:
+            type: number
+    CosmicTimeSeries:
+      type: object
+      description: Erweiterte Zeitreihe mit kosmischen Messwerten.
+      allOf:
+        - $ref: '#/components/schemas/ExtendedTimeSeries'
+      properties:
+        cos:
+          type: array
+          description: Kosmischer Anteil des Messwertes in µSv/h
+          items:
+            type: number
+        ter:
+          type: array
+          description: Terrestrischer Anteil des Messwertes in µSv/h
+          items:
+            type: number
     Station:
       type: object
       description: Spezifikation einer Messstation.
@@ -143,3 +187,121 @@ paths:
                 patternProperties:
                   '[0-9]{9}':
                     $ref: '#/components/schemas/Station'
+  
+  /json/{id}.json:
+    get:
+      summary: Stammdaten und Zeitreihen zu einer bestimmten Messstation.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stamm:
+                    $ref: '#/components/schemas/Station'
+                  mw1h:
+                    description: Stündliche Mittelwerte
+                    $ref: '#/components/schemas/ExtendedTimeSeries'
+                  mw24h:
+                    description: Tägliche Mittelwerte
+                    $ref: '#/components/schemas/BasicTimeSeries' 
+          example:
+            stamm:
+              ort: Achern OT Gamshurst
+              kenn: '083170010'
+              plz: '77855'
+              status: 1
+              kid: 1
+              hoehe: 100
+              lon: 8.02
+              lat: 48.66
+              mw: 0.107
+            mw1h:
+              t:
+              - 2021-08-15 00:00
+              - 2021-08-15 01:00
+              mw:
+              - 0.109
+              - 0.308
+              ps:
+              - 0
+              - 2
+              tr:
+              - 2021-08-15 01:00
+              - 2021-08-15 02:00
+              r:
+              - 0
+              - 0.005
+            mw24h:
+              t:
+              - '2020-08-21'
+              - '2020-08-22'
+              mw:
+              - 0.111
+              - 0.109
+
+  /json/{id}ct.json:
+    get:
+      summary: Stammdaten und Zeitreihen zu einer bestimmten Messstation inklusive kosmisch-terrestrischer Daten.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stamm:
+                    $ref: '#/components/schemas/Station'
+                  mw1h:
+                    description: Stündliche Mittelwerte
+                    $ref: '#/components/schemas/CosmicTimeSeries'
+                  mw24h:
+                    description: Tägliche Mittelwerte
+                    $ref: '#/components/schemas/BasicTimeSeries' 
+          example:
+            stamm:
+              ort: Achern OT Gamshurst
+              kenn: '083170010'
+              plz: '77855'
+              status: 1
+              kid: 1
+              hoehe: 100
+              lon: 8.02
+              lat: 48.66
+              mw: 0.107
+            mw1h:
+              t:
+              - 2021-08-15 00:00
+              - 2021-08-15 01:00
+              mw:
+              - 0.109
+              - 0.308
+              ps:
+              - 0
+              - 2
+              tr:
+              - 2021-08-15 01:00
+              - 2021-08-15 02:00
+              r:
+              - 0
+              - 0.005
+              cos:
+              - 0.041
+              - 0.041
+              ter:
+              - 0.068
+              - 0.067
+            mw24h:
+              t:
+              - '2020-08-21'
+              - '2020-08-22'
+              mw:
+              - 0.111
+              - 0.109
+              cos:
+              - 0.041
+              - 0.041
+              ter:
+              - 0.07
+              - 0.068
