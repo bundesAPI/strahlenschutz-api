@@ -1,0 +1,6 @@
+on: [push, pull_request]
+- name: OpenAPI Lint Checks
+- uses: nwestfall/openapi-action@v1.0.1
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    file: openapi.yaml
