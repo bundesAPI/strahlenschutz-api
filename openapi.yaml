@@ -154,7 +154,7 @@ paths:
       summary: Statistiken zu den Messstationen.
       responses:
         '200':
-          description: Statistiken zu den Messstationen.
+          description: Erfolgreicher Abruf
           content:
             application/json:
               example:
@@ -193,16 +193,24 @@ paths:
                   plz: '66128'
               schema: 
                 type: object
-                patternProperties:
-                  '[0-9]{9}':
+                properties:
+                  /^[0-9]{9}$/:
                     $ref: '#/components/schemas/Station'
   
   /json/{id}.json:
     get:
       summary: Stammdaten und Zeitreihen zu einer bestimmten Messstation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+          example: 097741851
+        required: true
+        description: ID der Messstation
       responses:
         '200':
-          description: Stammdaten und Zeitreihen zu einer bestimmten Messstation.
+          description: Erfolgreicher Abruf
           content:
             application/json:
               example:
@@ -249,14 +257,22 @@ paths:
                     $ref: '#/components/schemas/ExtendedTimeSeries'
                   mw24h:
                     description: Tägliche Mittelwerte
-                    $ref: '#/components/schemas/BasicTimeSeries' 
+                    $ref: '#/components/schemas/BasicTimeSeries'
 
   /json/{id}ct.json:
     get:
       summary: Stammdaten und Zeitreihen zu einer bestimmten Messstation inklusive kosmisch-terrestrischer Daten.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            example: 097741851
+          required: true
+          description: ID der Messstation
       responses:
         '200':
-          description: Stammdaten und Zeitreihen zu einer bestimmten Messstation inklusive kosmisch-terrestrischer Daten.
+          description: Erfolgreicher Abruf
           content:
             application/json:
               example:
@@ -316,3 +332,4 @@ paths:
                   mw24h:
                     description: Tägliche Mittelwerte
                     $ref: '#/components/schemas/BasicTimeSeries' 
+          
