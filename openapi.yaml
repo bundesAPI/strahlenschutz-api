@@ -4,8 +4,12 @@ info:
   description: Daten zur radioaktiven Belastung in Deutschland
   version: 0.0.1
 servers:
-  - url: https://odlinfo.bfs.de
+  - url: https://odlinfo.bfs.de/daten
 components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
   schemas:
     Statistics:
       type: object
@@ -139,6 +143,9 @@ components:
           type: string
           example: 66128
           description: PLZ
+
+security:
+  - basicAuth: []
       
 paths:
   /json/stat.json:
