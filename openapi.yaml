@@ -10,6 +10,7 @@ components:
     basicAuth:
       type: http
       scheme: basic
+      description: Aktuell werden Zugangsdaten benötigt, die per Mail an ePost@bfs.de erfragt werden können. Die Barriere ist temporär und soll bald entfernt werden (siehe https://twitter.com/strahlenschutz/status/1429750786590916608).
   schemas:
     Statistics:
       type: object
@@ -151,21 +152,22 @@ paths:
   /json/stat.json:
     get:
       summary: Statistiken zu den Messstationen.
-      repsonses:
+      responses:
         '200':
-          example:
-            betriebsbereit: 1728
-            mwavg:
-              mw: '0.090'
-              t: '2016-04-04'
-            mwmax:
-              mw: 0.178
-              kenn: '083370490'
-            mwmin:
-              mw: 0.042
-              kenn: '010020002'
+          description: Statistiken zu den Messstationen.
           content:
             application/json:
+              example:
+                betriebsbereit: 1728
+                mwavg:
+                  mw: '0.090'
+                  t: '2016-04-04'
+                mwmax:
+                  mw: 0.178
+                  kenn: '083370490'
+                mwmin:
+                  mw: 0.042
+                  kenn: '010020002'
               schema:
                 $ref: '#/components/schemas/Statistics'
                   
@@ -176,19 +178,19 @@ paths:
       responses:
         '200':
           description: JSON-Objekt der verfügbaren Messstationen
-          example:
-            '100411002':
-              ort: Saarbrücken-Gersweiler
-              kid: 4
-              imis: Z1877
-              status: 1
-              hoehe: 240
-              lon: 6.93
-              mw: 0.104
-              lat: 49.24
-              plz: '66128'
           content:
             application/json:
+              example:
+                '100411002':
+                  ort: Saarbrücken-Gersweiler
+                  kid: 4
+                  imis: Z1877
+                  status: 1
+                  hoehe: 240
+                  lon: 6.93
+                  mw: 0.104
+                  lat: 49.24
+                  plz: '66128'
               schema: 
                 type: object
                 patternProperties:
@@ -200,8 +202,43 @@ paths:
       summary: Stammdaten und Zeitreihen zu einer bestimmten Messstation.
       responses:
         '200':
+          description: Stammdaten und Zeitreihen zu einer bestimmten Messstation.
           content:
             application/json:
+              example:
+                stamm:
+                  ort: Achern OT Gamshurst
+                  kenn: '083170010'
+                  plz: '77855'
+                  status: 1
+                  kid: 1
+                  hoehe: 100
+                  lon: 8.02
+                  lat: 48.66
+                  mw: 0.107
+                mw1h:
+                  t:
+                  - 2021-08-15 00:00
+                  - 2021-08-15 01:00
+                  mw:
+                  - 0.109
+                  - 0.308
+                  ps:
+                  - 0
+                  - 2
+                  tr:
+                  - 2021-08-15 01:00
+                  - 2021-08-15 02:00
+                  r:
+                  - 0
+                  - 0.005
+                mw24h:
+                  t:
+                  - '2020-08-21'
+                  - '2020-08-22'
+                  mw:
+                  - 0.111
+                  - 0.109
               schema:
                 type: object
                 properties:
@@ -213,48 +250,61 @@ paths:
                   mw24h:
                     description: Tägliche Mittelwerte
                     $ref: '#/components/schemas/BasicTimeSeries' 
-          example:
-            stamm:
-              ort: Achern OT Gamshurst
-              kenn: '083170010'
-              plz: '77855'
-              status: 1
-              kid: 1
-              hoehe: 100
-              lon: 8.02
-              lat: 48.66
-              mw: 0.107
-            mw1h:
-              t:
-              - 2021-08-15 00:00
-              - 2021-08-15 01:00
-              mw:
-              - 0.109
-              - 0.308
-              ps:
-              - 0
-              - 2
-              tr:
-              - 2021-08-15 01:00
-              - 2021-08-15 02:00
-              r:
-              - 0
-              - 0.005
-            mw24h:
-              t:
-              - '2020-08-21'
-              - '2020-08-22'
-              mw:
-              - 0.111
-              - 0.109
 
   /json/{id}ct.json:
     get:
       summary: Stammdaten und Zeitreihen zu einer bestimmten Messstation inklusive kosmisch-terrestrischer Daten.
       responses:
         '200':
+          description: Stammdaten und Zeitreihen zu einer bestimmten Messstation inklusive kosmisch-terrestrischer Daten.
           content:
             application/json:
+              example:
+                stamm:
+                  ort: Achern OT Gamshurst
+                  kenn: '083170010'
+                  plz: '77855'
+                  status: 1
+                  kid: 1
+                  hoehe: 100
+                  lon: 8.02
+                  lat: 48.66
+                  mw: 0.107
+                mw1h:
+                  t:
+                  - 2021-08-15 00:00
+                  - 2021-08-15 01:00
+                  mw:
+                  - 0.109
+                  - 0.308
+                  ps:
+                  - 0
+                  - 2
+                  tr:
+                  - 2021-08-15 01:00
+                  - 2021-08-15 02:00
+                  r:
+                  - 0
+                  - 0.005
+                  cos:
+                  - 0.041
+                  - 0.041
+                  ter:
+                  - 0.068
+                  - 0.067
+                mw24h:
+                  t:
+                  - '2020-08-21'
+                  - '2020-08-22'
+                  mw:
+                  - 0.111
+                  - 0.109
+                  cos:
+                  - 0.041
+                  - 0.041
+                  ter:
+                  - 0.07
+                  - 0.068
               schema:
                 type: object
                 properties:
@@ -266,49 +316,3 @@ paths:
                   mw24h:
                     description: Tägliche Mittelwerte
                     $ref: '#/components/schemas/BasicTimeSeries' 
-          example:
-            stamm:
-              ort: Achern OT Gamshurst
-              kenn: '083170010'
-              plz: '77855'
-              status: 1
-              kid: 1
-              hoehe: 100
-              lon: 8.02
-              lat: 48.66
-              mw: 0.107
-            mw1h:
-              t:
-              - 2021-08-15 00:00
-              - 2021-08-15 01:00
-              mw:
-              - 0.109
-              - 0.308
-              ps:
-              - 0
-              - 2
-              tr:
-              - 2021-08-15 01:00
-              - 2021-08-15 02:00
-              r:
-              - 0
-              - 0.005
-              cos:
-              - 0.041
-              - 0.041
-              ter:
-              - 0.068
-              - 0.067
-            mw24h:
-              t:
-              - '2020-08-21'
-              - '2020-08-22'
-              mw:
-              - 0.111
-              - 0.109
-              cos:
-              - 0.041
-              - 0.041
-              ter:
-              - 0.07
-              - 0.068
