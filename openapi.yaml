@@ -80,7 +80,7 @@ components:
           type: array
           description: Zeitstempel zu den Niederschlagswahrscheinlichkeiten
           items:
-            type: number
+            type: string
         r:
           type: array
           description: Regenwahrscheinlichkeit
@@ -142,7 +142,7 @@ components:
           description: Breitengrad
         plz:
           type: string
-          example: 66128
+          example: '66128'
           description: PLZ
 
 security:
@@ -160,7 +160,7 @@ paths:
               example:
                 betriebsbereit: 1728
                 mwavg:
-                  mw: '0.090'
+                  mw: 0.09
                   t: '2016-04-04'
                 mwmax:
                   mw: 0.178
@@ -253,10 +253,8 @@ paths:
                   stamm:
                     $ref: '#/components/schemas/Station'
                   mw1h:
-                    description: Stündliche Mittelwerte
                     $ref: '#/components/schemas/ExtendedTimeSeries'
                   mw24h:
-                    description: Tägliche Mittelwerte
                     $ref: '#/components/schemas/BasicTimeSeries'
 
   /json/{id}ct.json:
