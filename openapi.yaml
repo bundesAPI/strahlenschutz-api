@@ -325,9 +325,7 @@ paths:
                   stamm:
                     $ref: '#/components/schemas/Station'
                   mw1h:
-                    description: Stündliche Mittelwerte
                     $ref: '#/components/schemas/CosmicTimeSeries'
                   mw24h:
-                    description: Tägliche Mittelwerte
                     $ref: '#/components/schemas/BasicTimeSeries' 
           
