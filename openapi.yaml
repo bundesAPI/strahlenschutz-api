@@ -4,7 +4,7 @@ info:
   description: Daten zur radioaktiven Belastung in Deutschland
   version: 0.0.1
 servers:
-  - url: https://odlinfo.bfs.de/daten
+  - url: https://odlinfo.bfs.de/json
 components:
   securitySchemes:
     basicAuth:
@@ -149,7 +149,7 @@ security:
   - basicAuth: []
       
 paths:
-  /json/stat.json:
+  /stat.json:
     get:
       summary: Statistiken zu den Messstationen.
       responses:
@@ -172,7 +172,7 @@ paths:
                 $ref: '#/components/schemas/Statistics'
                   
                       
-  /json/stamm.json:
+  /stamm.json:
     get:
       summary: Liste aller verfügbaren Messstationen.
       responses:
@@ -197,7 +197,7 @@ paths:
                   /^[0-9]{9}$/:
                     $ref: '#/components/schemas/Station'
   
-  /json/{id}.json:
+  /{id}.json:
     get:
       summary: Stammdaten und Zeitreihen zu einer bestimmten Messstation.
       parameters:
@@ -257,7 +257,7 @@ paths:
                   mw24h:
                     $ref: '#/components/schemas/BasicTimeSeries'
 
-  /json/{id}ct.json:
+  /{id}ct.json:
     get:
       summary: Stammdaten und Zeitreihen zu einer bestimmten Messstation inklusive kosmisch-terrestrischer Daten.
       parameters:
