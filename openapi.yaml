@@ -1,331 +1,272 @@
 openapi: 3.0.0
 info:
   title: ODL-Info API
-  description: Daten zur radioaktiven Belastung in Deutschland
-  version: 0.0.1
+  description: Daten zur radioaktiven Belastung in Deutschland. Weitere Informationen unter https://odlinfo.bfs.de/ODL/DE/service/datenschnittstelle/datenschnittstelle_node.html. 
+  version: 1.0.0
 servers:
-  - url: https://odlinfo.bfs.de/json
+  - url: https://www.imis.bfs.de/ogc/opendata/ows
 components:
-  securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
-      description: Aktuell werden Zugangsdaten benötigt, die per Mail an ePost@bfs.de erfragt werden können. Die Barriere ist temporär und soll bald entfernt werden (siehe https://twitter.com/strahlenschutz/status/1429750786590916608).
   schemas:
-    Statistics:
+    NormalFeatureProperties:
       type: object
+      description: Grundlegende Werte eines einzelnen Datenpunktes
       properties:
-        betriebsbereit:
-          type: number
-          example: 1728
-          description: Anzahl betriebsbereiter Messstationen
-        mwavg:
-          type: object
-          properties:
-            mw:
-              type: number
-              example: 0.090
-              description: Tagesmittelwert aller Stationen
-            t:
-              type: string
-              description: Zeitstempel Tag
-        mwmin:
-          type: object
-          properties:
-            mw:
-              type: number
-              example: 0.090
-              description: Tagesmittelwert
-            kenn:
-              type: string
-              example: '010020002'
-              description: Kennnummer der Station mit dem kleinsten Tagesmittelwert
-        mwmax:
-          type: object
-          properties:
-            mw:
-              type: number
-              example: 0.090
-              description: Tagesmittelwert
-            kenn:
-              type: string
-              example: '010020002'
-              description: Kennnummer der Station mit dem höchsten Tagesmittelwert
-    BasicTimeSeries:
-      type: object
-      description: Grundlegende Zeitreihe (Zeitstempel und Strahlungsmesswerte).
-      properties:
-        t:
-          type: array
-          description: UTC-Zeitstempel der Messwerte
-          items:
-            type: string
-        mw:
-          type: array
-          description: Messwerte in µSv/h
-          items:
-            type: number
-    ExtendedTimeSeries:
-      type: object
-      description: Erweiterte Zeitreihe mit Prüfstatus und Niederschlagswahrscheinlichkeiten.
-      allOf:
-        - $ref: '#/components/schemas/BasicTimeSeries'
-      properties:
-        ps:
-          type: array
-          description: Prüfstatus der Messwerte. Ein Status ungleich 0 zeigt einen Messwert an, der auffällig ist und überprüft werden muss
-          items:
-            type: number
-        tr:
-          type: array
-          description: Zeitstempel zu den Niederschlagswahrscheinlichkeiten
-          items:
-            type: string
-        r:
-          type: array
-          description: Regenwahrscheinlichkeit
-          items:
-            type: number
-    CosmicTimeSeries:
-      type: object
-      description: Erweiterte Zeitreihe mit kosmischen Messwerten.
-      allOf:
-        - $ref: '#/components/schemas/ExtendedTimeSeries'
-      properties:
-        cos:
-          type: array
-          description: Kosmischer Anteil des Messwertes in µSv/h
-          items:
-            type: number
-        ter:
-          type: array
-          description: Terrestrischer Anteil des Messwertes in µSv/h
-          items:
-            type: number
-    Station:
-      type: object
-      description: Spezifikation einer Messstation.
-      properties:
-        ort:
+        id:
           type: string
-          example: Saarbrücken-Gersweiler
-          description: Ortsname
+          description: Internationale ID der Messstelle
+          example: DEZ2096
+        kenn:
+          type: string
+          description: Interne Messstellenkennung
+          example: 066340191
+        plz:
+          type: string
+          description: PLZ der Messstelle
+          example: 36280
+        name:
+          type: string
+          description: Name/Ortsname der Messstelle
+          example: Oberaula
+        start_measure:
+          type: string
+          format: date-time
+          description: Startzeitpunkt der Messperiode für den gegebenen Messwert als ISO-Datetime
+          example: "2021-11-30T20:00:00Z"
+        end_measure:
+          type: string
+          format: date-time
+          description: Endzeitpunkt der Messperiode für den gegebenen Messwert als ISO-Datetime
+          example: "2021-11-30T21:00:00Z"
+        value:
+          type: number
+          description: Der Messwert in `unit` (setzt sich aus `value_cosmic` und `value_terrestrial` zusammen)
+          example: 0.124
+        unit:
+          type: string
+          description: Einheit der Messwerte
+          example: µSv/h
+        validated:
+          type: number
+          enum: [1, 2]
+          description: >
+            Prüfstatus des Messwertes:
+              * `1` - geprüft
+              * `2` - ungeprüft
+        nuclide:
+          type: string
+          description: Bezeichnung der Messgröße
+          example: Gamma-ODL-Brutto
+        duration:
+          type: string
+          enum: [1h, 1d]
+          description: >
+            Dauer der Messperiode
+              * `1h` - eine Stunde
+              * `1d` - ein Tag
+    ExtendedFeatureProperties:
+      type: object
+      description: Erweiterte Werte eines einzelnen Datenpunktes
+      allOf:
+        - $ref: '#/components/schemas/NormalFeatureProperties'
+      properties:
+        site_status:
+          type: number
+          enum: [1, 2, 3]
+          description: >
+            Status der Messstelle:
+              * `1` - In Betrieb
+              * `2` - Defekt
+              * `3` - Testbetrieb
+        site_status_text:
+          type: string
+          description: Status der Messstelle als Text
+          example: in Betrieb
         kid:
           type: number
           enum: [1, 2, 3, 4, 5, 6]
-          example: 4
-          description: Messnetzknoten-ID der Station (1 = Freiburg, 2 = Berlin, 3 = München, 4 = Bonn, 5 = Salzgitter, 6 = Rendsburg)
-        imis:
+          description: >
+            ID des Messnetzknotens, dem die Messstelle zugeordnet ist:
+              * `1` - Freiburg
+              * `2` - Berlin
+              * `3` - München
+              * `4` - Bonn
+              * `5` - Salzgitter
+              * `6` - Rendsburg
+        height_above_sea:
+          type: number
+          description: Höhe der Messstelle über NN (Normal Null, Meereshöhe)
+          example: 380
+        value_cosmic:
+          type: number
+          description: Kosmischer Anteil in `unit`
+          example: 0.047
+        value_terrestrial:
+          type: number
+          description: Terrestrischer Anteil in `unit`
+          example: 0.077
+    GeometryPoint:
+      type: object
+      description: Koordinaten der Messstelle
+      properties:
+        type:
           type: string
-          example: Z1877
-          description: IMIS-ID
-        status:
-          type: number
-          example: 1
-          enum: [0, 1, 128, 2048]
-          description: Zustand der Station (0 = defekt, 1 = in Betrieb, 128 = Testbetrieb, 2048 = Wartung)
-        hoehe:
-          type: number
-          example: 240
-          description: Höhe der Station über NN
-        lon:
-          type: number
-          example: 6.93
-          description: Längengrad
-        mw:
-          type: number
-          example: 0.104
-          description: Aktueller Messwert in µSv/h
-        lat:
-          type: number
-          example: 49.24
-          description: Breitengrad
-        plz:
+          enum: [Point]
+          description: Point-Feld, immer `Point`
+        coordinates:
+          type: array
+          description: Koordinaten des Punkts (erster Wert Längengrad, zweiter Wert Breitengrad)
+          minItems: 2
+          maxItems: 2
+          items:
+            type: number
+    BaseFeature:
+      type: object
+      description: Abstrakter Datenpunkt mit grundlegenden Werten. Entspricht einem `Feature` in GeoJSON.
+      properties:
+        type:
           type: string
-          example: '66128'
-          description: PLZ
+          enum: [Feature]
+          description: Feature-Feld, immer `Feature`
+        id:
+          type: string
+          description: ID des Features, setzt sich zusammen aus dem Name des Layers und einer eindeutigen ID
+          example: odlinfo_odl_1h_latest.fid-764e3717_17d72ce7d3d_52d7
+        geometry:
+          $ref: '#/components/schemas/GeometryPoint'
+        geometry_name:
+          type: string
+          enum: [geom]
+          description: Geometriename, immer `geom`
+    NormalFeature:
+      type: object
+      description: Einzelner Datenpunkt, der nur über den normalen Umfang an Werten verfügt
+      allOf:
+        - $ref: '#/components/schemas/BaseFeature'
+      properties:
+        properties:
+          $ref: '#/components/schemas/NormalFeatureProperties'
+    ExtendedFeature:
+      type: object
+      description: Einzelner Datenpunkt, der nur über den erweiterten Umfang an Werten verfügt
+      allOf:
+        - $ref: '#/components/schemas/BaseFeature'
+      properties:
+        properties:
+          $ref: '#/components/schemas/ExtendedFeatureProperties'
+    BaseSchema:
+      description: Abstraktes Standardschema der API. Diese Ebene entspricht einer `FeatureCollection` in GeoJSON.
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [FeatureCollection]
+          description: FeatureCollection-Feld, immer `FeatureCollection`
+        totalFeatures:
+          type: number
+          description: Anzahl der insgesamt gefundenen Datensätze
+          example: 1722
+        numberReturned:
+          type: number
+          description: Anzahl zurückgegebener Datensätze, also die Länge von `features`. Kleinergleich `totalFeatures`.
+          example: 1000
+        timeStamp:
+          type: string
+          format: date-time
+          description: Zeitstempel der Antwort
+          example: "2021-11-30T22:01:25.691Z"
+    NormalSchema:
+      description: Schema für Endpunkte, die den grundlegen Umfang an Messwerten pro Datenpunkt bereitstellen.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/BaseSchema'
+      properties:
+        features:
+          type: array
+          description: Liste einzelner Datensätze
+          items:
+            $ref: '#/components/schemas/NormalFeature'
+    ExtendedSchema:
+      description: Schema für Endpunkte, die den erweiterten Umfang an Messwerten pro Datenpunkt bereitstellen.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/BaseSchema'
+      properties:
+        features:
+          type: array
+          description: Liste einzelner Datensätze
+          items:
+            $ref: '#/components/schemas/ExtendedFeature'
 
-security:
-  - basicAuth: []
-      
 paths:
-  /stat.json:
+  /:
     get:
-      summary: Statistiken zu den Messstationen.
-      responses:
-        '200':
-          description: Erfolgreicher Abruf
-          content:
-            application/json:
-              example:
-                betriebsbereit: 1728
-                mwavg:
-                  mw: 0.09
-                  t: '2016-04-04'
-                mwmax:
-                  mw: 0.178
-                  kenn: '083370490'
-                mwmin:
-                  mw: 0.042
-                  kenn: '010020002'
-              schema:
-                $ref: '#/components/schemas/Statistics'
-                  
-                      
-  /stamm.json:
-    get:
-      summary: Liste aller verfügbaren Messstationen.
-      responses:
-        '200':
-          description: JSON-Objekt der verfügbaren Messstationen
-          content:
-            application/json:
-              example:
-                '100411002':
-                  ort: Saarbrücken-Gersweiler
-                  kid: 4
-                  imis: Z1877
-                  status: 1
-                  hoehe: 240
-                  lon: 6.93
-                  mw: 0.104
-                  lat: 49.24
-                  plz: '66128'
-              schema: 
-                type: object
-                properties:
-                  /^[0-9]{9}$/:
-                    $ref: '#/components/schemas/Station'
-  
-  /{id}.json:
-    get:
-      summary: Stammdaten und Zeitreihen zu einer bestimmten Messstation.
+      summary: Hauptendpunkt
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-          example: 097741851
-        required: true
-        description: ID der Messstation
-      responses:
-        '200':
-          description: Erfolgreicher Abruf
-          content:
-            application/json:
-              example:
-                stamm:
-                  ort: Achern OT Gamshurst
-                  kenn: '083170010'
-                  plz: '77855'
-                  status: 1
-                  kid: 1
-                  hoehe: 100
-                  lon: 8.02
-                  lat: 48.66
-                  mw: 0.107
-                mw1h:
-                  t:
-                  - 2021-08-15 00:00
-                  - 2021-08-15 01:00
-                  mw:
-                  - 0.109
-                  - 0.308
-                  ps:
-                  - 0
-                  - 2
-                  tr:
-                  - 2021-08-15 01:00
-                  - 2021-08-15 02:00
-                  r:
-                  - 0
-                  - 0.005
-                mw24h:
-                  t:
-                  - '2020-08-21'
-                  - '2020-08-22'
-                  mw:
-                  - 0.111
-                  - 0.109
-              schema:
-                type: object
-                properties:
-                  stamm:
-                    $ref: '#/components/schemas/Station'
-                  mw1h:
-                    $ref: '#/components/schemas/ExtendedTimeSeries'
-                  mw24h:
-                    $ref: '#/components/schemas/BasicTimeSeries'
-
-  /{id}ct.json:
-    get:
-      summary: Stammdaten und Zeitreihen zu einer bestimmten Messstation inklusive kosmisch-terrestrischer Daten.
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-            example: 097741851
+        - in: query
+          name: service
           required: true
-          description: ID der Messstation
+          description: Name des Service der benutzt werden soll. Aktuell immer `WFS`.
+          schema:
+            type: string
+            enum: [WFS]
+        - in: query
+          name: request
+          required: true
+          description: Name der OWS-Request. Aktuell immer `GetFeature`.
+          schema:
+            type: string
+            enum: [GetFeature]
+        - in: query
+          name: typeName
+          description: >
+            Name des Datenlayers, das benutzt werden soll.
+              * `odlinfo_odl_1h_latest` - Liste der Messstellen inklusive dem jeweils letzten 1-Stunden-Messwert
+              * `odlinfo_timeseries_odl_1h` - Zeitreihe mit 1-Stunden-Messdaten
+              * `odlinfo_timeseries_odl_24h` - Zeitreihe mit 24-Stunden-Messdaten
+          schema:
+            type: string
+            enum: [opendata:odlinfo_odl_1h_latest, opendata:odlinfo_timeseries_odl_1h, opendata:odlinfo_timeseries_odl_24h]
+        - in: query
+          name: outputFormat
+          required: true
+          description: Ausgabeformat. Aktuell immer `application/json`.
+          schema:
+            type: string
+            enum: [application/json]
+        - in: query
+          name: viewparams
+          description: >
+            Nur in Kombination mit historischen Daten (also nur Layer ohne `_latest`) relevant. 
+            Genutzt zur Angabe einer spezifischen Messstelle mittels `kenn`-Wert.
+          schema:
+            type: string
+            example: kenn:031020004
+        - in: query
+          name: sortBy
+          description: >
+            Hier kann ein Feld von `properties` (also den zurückgegebenen Datenpunkten) angegeben werden, dann wird nach diesem aufsteigend sortiert.
+            Wird an den Namen des Feldes noch `+D` angehängt, so wird absteigend sortiert.
+          schema:
+            type: string
+            example: end_measure+D
+        - in: query
+          name: maxFeatures
+          description: Maximale Anzahl an Datenpunkten die zurückgegeben werden soll.
+          schema:
+            type: number
+            example: 100
+        - in: query
+          name: startIndex
+          description: Offset, von dem aus Datenpunkte zurückgegeben werden sollen. Kann in Kombination mit `maxFeatures` genutzt werden, um Pagination zu ermöglichen.
+          schema:
+            type: number
+
       responses:
         '200':
-          description: Erfolgreicher Abruf
+          description: Erfolgreicher Abruf - je nach Layer werden entweder grundlegende oder erweiterte Werte pro Datenpunkt zurückgegeben.
           content:
             application/json:
-              example:
-                stamm:
-                  ort: Achern OT Gamshurst
-                  kenn: '083170010'
-                  plz: '77855'
-                  status: 1
-                  kid: 1
-                  hoehe: 100
-                  lon: 8.02
-                  lat: 48.66
-                  mw: 0.107
-                mw1h:
-                  t:
-                  - 2021-08-15 00:00
-                  - 2021-08-15 01:00
-                  mw:
-                  - 0.109
-                  - 0.308
-                  ps:
-                  - 0
-                  - 2
-                  tr:
-                  - 2021-08-15 01:00
-                  - 2021-08-15 02:00
-                  r:
-                  - 0
-                  - 0.005
-                  cos:
-                  - 0.041
-                  - 0.041
-                  ter:
-                  - 0.068
-                  - 0.067
-                mw24h:
-                  t:
-                  - '2020-08-21'
-                  - '2020-08-22'
-                  mw:
-                  - 0.111
-                  - 0.109
-                  cos:
-                  - 0.041
-                  - 0.041
-                  ter:
-                  - 0.07
-                  - 0.068
               schema:
-                type: object
-                properties:
-                  stamm:
-                    $ref: '#/components/schemas/Station'
-                  mw1h:
-                    $ref: '#/components/schemas/CosmicTimeSeries'
-                  mw24h:
-                    $ref: '#/components/schemas/BasicTimeSeries' 
-          
+                oneOf:
+                  - $ref: '#/components/schemas/NormalSchema'
+                  - $ref: '#/components/schemas/ExtendedSchema'
