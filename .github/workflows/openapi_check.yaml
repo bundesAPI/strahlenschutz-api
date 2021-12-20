@@ -7,9 +7,11 @@ jobs:
         # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
         - uses: actions/checkout@v2
 
-        # Create .spectral.yaml file used for linting
-        - run: |
-            echo "extends: spectral:oas" > .spectral.yaml
+        # Create default .spectral.yaml file used for linting if its not existing already
+        - name: "Create spectral file if it not exists"
+          continue-on-error: true
+          run: |
+             set -C; ! echo "extends: spectral:oas" > .spectral.yaml
 
         # Run Spectral
         - uses: stoplightio/spectral-action@v0.8.1
