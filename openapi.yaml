@@ -14,19 +14,19 @@ components:
         id:
           type: string
           description: Internationale ID der Messstelle
-          example: DEZ2096
+          example: "DEZ2096"
         kenn:
           type: string
           description: Interne Messstellenkennung
-          example: 066340191
+          example: "066340191"
         plz:
           type: string
           description: PLZ der Messstelle
-          example: 36280
+          example: "36280"
         name:
           type: string
           description: Name/Ortsname der Messstelle
-          example: Oberaula
+          example: "Oberaula"
         start_measure:
           type: string
           format: date-time
@@ -44,7 +44,7 @@ components:
         unit:
           type: string
           description: Einheit der Messwerte
-          example: µSv/h
+          example: "µSv/h"
         validated:
           type: number
           enum: [1, 2]
@@ -55,7 +55,7 @@ components:
         nuclide:
           type: string
           description: Bezeichnung der Messgröße
-          example: Gamma-ODL-Brutto
+          example: "Gamma-ODL-Brutto"
         duration:
           type: string
           enum: [1h, 1d]
@@ -80,7 +80,7 @@ components:
         site_status_text:
           type: string
           description: Status der Messstelle als Text
-          example: in Betrieb
+          example: "in Betrieb"
         kid:
           type: number
           enum: [1, 2, 3, 4, 5, 6]
@@ -130,7 +130,7 @@ components:
         id:
           type: string
           description: ID des Features, setzt sich zusammen aus dem Name des Layers und einer eindeutigen ID
-          example: odlinfo_odl_1h_latest.fid-764e3717_17d72ce7d3d_52d7
+          example: "odlinfo_odl_1h_latest.fid-764e3717_17d72ce7d3d_52d7"
         geometry:
           $ref: '#/components/schemas/GeometryPoint'
         geometry_name:
@@ -240,7 +240,7 @@ paths:
             Genutzt zur Angabe einer spezifischen Messstelle mittels `kenn`-Wert.
           schema:
             type: string
-            example: kenn:031020004
+            example: "kenn:031020004"
         - in: query
           name: sortBy
           description: >
@@ -248,7 +248,7 @@ paths:
             Wird an den Namen des Feldes noch `+D` angehängt, so wird absteigend sortiert.
           schema:
             type: string
-            example: end_measure+D
+            example: "end_measure+D"
         - in: query
           name: maxFeatures
           description: Maximale Anzahl an Datenpunkten die zurückgegeben werden soll.
