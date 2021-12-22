@@ -14,7 +14,7 @@ jobs:
       - name: "Create spectral file if it not exists"
         continue-on-error: true
         run: |
-           set -C; ! echo "extends: spectral:oas" > .spectral.yaml
+           set -C; echo "extends: spectral:oas" > .spectral.yaml
 
       # Runs a single command using the runners shell
       - name: "Lint file"
