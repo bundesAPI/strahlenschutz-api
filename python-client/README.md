@@ -14,16 +14,14 @@ Python >= 3.6
 ## Installation & Usage
 ### pip install
 
-If the python package is hosted on a repository, you can install directly using:
+```sh
+pip install deutschland[strahlenschutz]
+```
+
+### poetry install
 
 ```sh
-pip install git+https://github.com/bundesAPI/strahlenschutz-api.git
-```
-(you may need to run `pip` with root permission: `sudo pip install git+https://github.com/bundesAPI/strahlenschutz-api.git`)
-
-Then import the package:
-```python
-from deutschland import strahlenschutz
+poetry add deutschland -E strahlenschutz
 ```
 
 ### Setuptools
@@ -35,7 +33,9 @@ python setup.py install --user
 ```
 (or `sudo python setup.py install` to install the package for all users)
 
-Then import the package:
+## Usage
+
+Import the package:
 ```python
 from deutschland import strahlenschutz
 ```
