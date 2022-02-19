@@ -19,6 +19,8 @@ Hauptendpunkt
 import time
 from deutschland import strahlenschutz
 from deutschland.strahlenschutz.api import default_api
+from deutschland.strahlenschutz.model.extended_schema import ExtendedSchema
+from deutschland.strahlenschutz.model.normal_schema import NormalSchema
 from pprint import pprint
 # Defining the host is optional and defaults to https://www.imis.bfs.de/ogc/opendata/ows
 # See configuration.py for a list of all supported configuration parameters.
